@@ -68,6 +68,8 @@ foldersorter --help
 
 The pip package currently installs the CLI wrapper. It requires the Swift
 toolchain because the first `foldersorter` run builds the Swift CLI locally.
+PyPI publishing is prepared through the `Publish PyPI` GitHub Actions workflow
+and documented in `PYPI.md`.
 
 ## Use The App
 

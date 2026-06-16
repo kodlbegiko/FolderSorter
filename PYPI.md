@@ -52,6 +52,28 @@ dist/
 Publishing requires a PyPI account and either a trusted publishing setup or an
 API token.
 
+The recommended path is PyPI Trusted Publishing. It lets GitHub Actions publish
+without storing a long-lived PyPI API token in the repository.
+
+Create a pending publisher on PyPI with these values:
+
+```text
+PyPI project name: foldersorter
+Owner: kodlbegiko
+Repository name: FolderSorter
+Workflow filename: publish-pypi.yml
+```
+
+Then publish a GitHub Release or manually run the `Publish PyPI` workflow.
+
+The workflow builds `dist/`, checks it with `twine`, and publishes through:
+
+```text
+pypa/gh-action-pypi-publish@release/v1
+```
+
+Manual token upload is still possible if you prefer it:
+
 ```bash
 python3 -m pip install --upgrade twine
 python3 -m twine upload dist/*
