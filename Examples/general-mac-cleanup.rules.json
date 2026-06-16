@@ -1,0 +1,50 @@
+[
+  {
+    "extensionsText" : "png, jpg, jpeg",
+    "folderName" : "Screenshots",
+    "id" : "9F2E1DC4-29A5-4D7D-AC37-3C80E5426630",
+    "nameContainsText" : "screenshot, 截圖"
+  },
+  {
+    "extensionsText" : "mp4, mov, m4v, avi, mkv, webm",
+    "folderName" : "Videos",
+    "id" : "4E349EB4-891D-4572-879F-66373D68CB43",
+    "nameContainsText" : ""
+  },
+  {
+    "extensionsText" : "jpg, jpeg, png, gif, heic, webp, tiff, svg",
+    "folderName" : "Images",
+    "id" : "DDF32854-EC25-4933-A7D6-F5D7A5C088D7",
+    "nameContainsText" : ""
+  },
+  {
+    "extensionsText" : "pdf, doc, docx, pages, txt, rtf, md, xls, xlsx, numbers, ppt, pptx, key",
+    "folderName" : "Documents",
+    "id" : "B15E60B6-B520-49E1-967D-0F9A486E82A6",
+    "nameContainsText" : ""
+  },
+  {
+    "extensionsText" : "zip, rar, 7z, tar, gz, bz2, xz",
+    "folderName" : "Archives",
+    "id" : "C8EC4852-389C-4F4C-A7D3-9C1AC03B5323",
+    "nameContainsText" : ""
+  },
+  {
+    "extensionsText" : "dmg, pkg, app",
+    "folderName" : "Installers",
+    "id" : "B48FD941-44B3-4C01-BB15-581D7E6F5788",
+    "nameContainsText" : ""
+  },
+  {
+    "extensionsText" : "mp3, wav, aiff, flac, m4a, aac",
+    "folderName" : "Audio",
+    "id" : "E0D217F2-BB2E-49E7-980A-28DF111535B5",
+    "nameContainsText" : ""
+  },
+  {
+    "extensionsText" : "swift, py, js, ts, html, css, json, yaml, yml, sh",
+    "folderName" : "Code",
+    "id" : "F30A66D8-72D2-451D-82C3-037C1F9E4C75",
+    "nameContainsText" : ""
+  }
+]
