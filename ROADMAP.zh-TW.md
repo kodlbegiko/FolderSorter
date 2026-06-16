@@ -56,6 +56,7 @@
 ## V1.1
 
 - 簽章 release builds
+- 可透過 pip 安裝的 CLI package
 - 使用 hash 做更好的重複檔偵測
 - 更多規則包：學生、創作者、辦公工作者、開發者
 - 可選的排程掃描，但仍維持 preview-first 確認

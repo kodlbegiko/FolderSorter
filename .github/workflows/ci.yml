@@ -16,3 +16,14 @@ jobs:
         run: swift test
       - name: Build GUI and CLI
         run: swift build
+      - name: Build pip package
+        run: |
+          python3 -m venv /tmp/foldersorter-package-venv
+          /tmp/foldersorter-package-venv/bin/python -m pip install --upgrade pip build twine
+          /tmp/foldersorter-package-venv/bin/python -m build
+          /tmp/foldersorter-package-venv/bin/python -m twine check dist/*
+      - name: Test pip wheel CLI
+        run: |
+          python3 -m venv /tmp/foldersorter-wheel-venv
+          /tmp/foldersorter-wheel-venv/bin/python -m pip install dist/foldersorter-*.whl
+          FOLDERSORTER_CACHE_DIR=/tmp/foldersorter-pip-cache /tmp/foldersorter-wheel-venv/bin/foldersorter --help

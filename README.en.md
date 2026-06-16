@@ -19,6 +19,7 @@ undo the last cleanup.
 
 [Launch and discoverability plan](DISCOVERABILITY.md) |
 [Roadmap](ROADMAP.md) |
+[pip distribution](PYPI.md) |
 [GitHub social preview asset](Media/foldersorter-social-preview.jpg)
 
 ## Highlights
@@ -48,6 +49,25 @@ The generated app bundle is written to:
 ```text
 dist/FolderSorter.app
 ```
+
+## Install The CLI With pip
+
+Before the package is published to PyPI, install directly from GitHub:
+
+```bash
+python3 -m pip install "git+https://github.com/kodlbegiko/FolderSorter.git"
+foldersorter --help
+```
+
+After the package is published to PyPI:
+
+```bash
+python3 -m pip install foldersorter
+foldersorter --help
+```
+
+The pip package currently installs the CLI wrapper. It requires the Swift
+toolchain because the first `foldersorter` run builds the Swift CLI locally.
 
 ## Use The App
 

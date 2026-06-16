@@ -56,6 +56,7 @@ Planned experience:
 ## V1.1
 
 - Signed release builds
+- pip-installable CLI package
 - Better duplicate detection with hashes
 - More rule packs for students, creators, office workers, and developers
 - Optional scheduled scans with preview-first confirmation
