@@ -18,6 +18,7 @@ undo the last cleanup.
 </p>
 
 [Launch and discoverability plan](DISCOVERABILITY.md) |
+[Roadmap](ROADMAP.md) |
 [GitHub social preview asset](Media/foldersorter-social-preview.jpg)
 
 ## Highlights
@@ -139,6 +140,12 @@ transparent organizer for the broadest Mac audience:
 - safer than one-shot cleaners,
 - more transparent than closed-source apps,
 - more approachable than CLI-only organizers.
+
+## Next Priorities
+
+- **Downloadable release**: ship a `.zip` first, then `.dmg`, so users do not need to run `swift build`.
+- **Stronger GUI rules**: add visual conditions for file size, dates, screenshots, duplicates, and broad file types.
+- **Before / after comparison**: show the messy source folder beside the planned organized output.
 
 ## Help This Project Grow
 
