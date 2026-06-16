@@ -1,8 +1,8 @@
 # PyPI / pip Distribution
 
-FolderSorter can be installed through `pip` as a command line tool. The current
-pip package is a lightweight Python wrapper around the Swift CLI. On first use,
-it builds the Swift `foldersorter` binary in the user's cache directory.
+FolderSorter can be installed through `pip` as a cross-platform command line
+tool. The pip package is implemented in Python and does not require Swift,
+Xcode, or Xcode Command Line Tools.
 
 ## Install From GitHub
 
@@ -24,15 +24,8 @@ foldersorter --help
 
 ## Requirements
 
-- macOS 14 or newer
 - Python 3.9 or newer
-- Swift toolchain through Xcode or Xcode Command Line Tools
-
-Install the Swift toolchain with:
-
-```bash
-xcode-select --install
-```
+- macOS, Windows, or Linux
 
 ## Build The Python Package Locally
 
@@ -81,7 +74,6 @@ python3 -m twine upload dist/*
 
 ## Notes
 
-- The pip package currently exposes the CLI, not the SwiftUI app bundle.
-- The first `foldersorter` run may take a moment while Swift builds the release binary.
-- Set `FOLDERSORTER_REBUILD=1` to force a rebuild.
-- Set `FOLDERSORTER_CACHE_DIR=/custom/cache/path` to choose a custom build cache.
+- The pip package exposes the cross-platform CLI, not the SwiftUI app bundle.
+- The SwiftUI app remains available from GitHub Releases for macOS users.
+- Set `FOLDERSORTER_TRANSACTION_DIR=/custom/path` to choose a custom undo ledger directory.

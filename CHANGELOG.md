@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.2.0
+
+### Changed
+
+- Replaced the pip package's Swift wrapper with a pure Python implementation.
+- `pip install foldersorter` no longer requires Swift, Xcode, or Xcode Command Line Tools.
+- The CLI is now intended to work on macOS, Windows, and Linux.
+
+### Added
+
+- Python core tests for preview, copy, move, undo, and conflict renaming.
+
 ## v0.1.0
 
 Initial public release candidate for FolderSorter.

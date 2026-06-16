@@ -1,89 +1,110 @@
 from __future__ import annotations
 
-import os
-import shutil
-import subprocess
+import argparse
 import sys
-from pathlib import Path
 
 from . import __version__
+from .core import apply_plan, load_rules, make_plan, undo_latest
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = list(sys.argv[1:] if argv is None else argv)
+    parser = _build_parser()
+    args = parser.parse_args(argv)
 
-    if args == ["--wrapper-version"]:
+    if args.version:
         print(__version__)
         return 0
 
+    if args.undo:
+        report = undo_latest()
+        _print_undo_report(report)
+        return 0 if report.failed_files == 0 else 1
+
+    if not args.input_paths:
+        parser.error("at least one --input path is required")
+
+    if not args.output_path:
+        parser.error("--output is required")
+
     try:
-        binary = _ensure_swift_cli()
-    except RuntimeError as error:
+        rules = load_rules(args.rules_path)
+        plan = make_plan(
+            input_paths=args.input_paths,
+            output_root=args.output_path,
+            rules=rules,
+            operation_mode="move" if args.move else "copy",
+            includes_subfolders=not args.no_recursive,
+            conflict_strategy=args.conflict,
+        )
+    except (OSError, ValueError) as error:
         print(f"foldersorter: {error}", file=sys.stderr)
         return 2
 
-    completed = subprocess.run([str(binary), *args])
-    return completed.returncode
+    _print_plan(plan)
+
+    if not args.apply:
+        print("\nDry run only. Add --apply to move or copy files.")
+        return 0 if plan.failed_files == 0 else 1
+
+    report = apply_plan(plan)
+    _print_report(report)
+    return 0 if report.failed_files == 0 else 1
 
 
-def _ensure_swift_cli() -> Path:
-    swift = shutil.which("swift")
-    if swift is None:
-        raise RuntimeError(
-            "Swift is required for the current pip package. Install Xcode Command Line Tools "
-            "with `xcode-select --install`, then run foldersorter again."
-        )
-
-    project_dir = _cached_project_dir()
-    binary = _release_binary_path(project_dir)
-
-    if binary.exists() and os.environ.get("FOLDERSORTER_REBUILD") != "1":
-        return binary
-
-    _copy_swift_project(project_dir)
-
-    print("foldersorter: building the Swift CLI for first use...", file=sys.stderr)
-    try:
-        subprocess.run(
-            [swift, "build", "-c", "release", "--product", "foldersorter"],
-            cwd=project_dir,
-            check=True,
-        )
-    except subprocess.CalledProcessError as error:
-        raise RuntimeError(
-            "Swift failed to build the FolderSorter CLI. Make sure Xcode Command Line Tools "
-            "are installed and working, then retry with `FOLDERSORTER_REBUILD=1 foldersorter --help`."
-        ) from error
-
-    if not binary.exists():
-        raise RuntimeError(f"Swift build finished, but the CLI binary was not found at {binary}")
-
-    return binary
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="foldersorter",
+        description="Preview-first cross-platform file organizer.",
+    )
+    parser.add_argument("-i", "--input", dest="input_paths", action="append", default=[], help="File or folder to sort. Repeat for multiple inputs.")
+    parser.add_argument("-o", "--output", dest="output_path", help="Destination root folder.")
+    parser.add_argument("--rules", dest="rules_path", help="JSON rules exported from the app.")
+    parser.add_argument("--apply", action="store_true", help="Apply the preview. Default is dry-run.")
+    parser.add_argument("--dry-run", action="store_false", dest="apply", help="Preview only.")
+    parser.add_argument("--move", action="store_true", help="Move files instead of copying.")
+    parser.add_argument("--copy", action="store_false", dest="move", help="Copy files. This is the default.")
+    parser.add_argument("--conflict", choices=["rename", "skip", "replace"], default="rename", help="Conflict strategy. Default is rename.")
+    parser.add_argument("--no-recursive", action="store_true", help="Do not scan subfolders.")
+    parser.add_argument("--undo", action="store_true", help="Undo the latest applied cleanup.")
+    parser.add_argument("--version", "--wrapper-version", action="store_true", help="Show the Python package version.")
+    parser.set_defaults(apply=False, move=False)
+    return parser
 
 
-def _cached_project_dir() -> Path:
-    cache_root = os.environ.get("FOLDERSORTER_CACHE_DIR")
-    if cache_root:
-        root = Path(cache_root).expanduser()
-    elif sys.platform == "darwin":
-        root = Path.home() / "Library" / "Caches" / "FolderSorter" / "pip"
-    else:
-        root = Path.home() / ".cache" / "foldersorter" / "pip"
+def _print_plan(plan) -> None:
+    print("Preview")
+    print(f"  scanned: {plan.scanned_files}")
+    print(f"  matched: {plan.matched_files}")
+    print(f"  planned: {len(plan.operations)}")
+    print(f"  skipped: {plan.skipped_files}")
+    print(f"  issues:  {plan.failed_files}")
+    print(f"  mode:    {plan.operation_mode}")
+    print(f"  conflict:{plan.conflict_strategy}")
 
-    return root / f"swift-project-{__version__}"
+    for operation in plan.operations:
+        print(f"  {operation.source_path} -> {operation.destination_path}")
 
-
-def _copy_swift_project(project_dir: Path) -> None:
-    source = Path(__file__).resolve().parent / "swift_project"
-    if not source.exists():
-        raise RuntimeError(f"Bundled Swift project is missing: {source}")
-
-    if project_dir.exists():
-        shutil.rmtree(project_dir)
-
-    project_dir.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(source, project_dir)
+    for message in plan.messages:
+        print(f"  info: {message}")
 
 
-def _release_binary_path(project_dir: Path) -> Path:
-    return project_dir / ".build" / "release" / "foldersorter"
+def _print_report(report) -> None:
+    print("\nApplied")
+    print(f"  copied:  {report.copied_files}")
+    print(f"  moved:   {report.moved_files}")
+    print(f"  skipped: {report.skipped_files}")
+    print(f"  failed:  {report.failed_files}")
+
+    for message in report.messages:
+        print(f"  error: {message}")
+
+
+def _print_undo_report(report) -> None:
+    print("Undo")
+    print(f"  restored: {report.restored_files}")
+    print(f"  removed:  {report.removed_files}")
+    print(f"  skipped:  {report.skipped_files}")
+    print(f"  failed:   {report.failed_files}")
+
+    for message in report.messages:
+        print(f"  info: {message}")

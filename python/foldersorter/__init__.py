@@ -1,3 +1,3 @@
-"""Python wrapper package for the FolderSorter Swift CLI."""
+"""Cross-platform Python CLI for FolderSorter."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

@@ -30,7 +30,7 @@ undo the last cleanup.
 - **Common Mac defaults**: Images, Videos, Documents, Archives, Installers, Audio, Code, and Screenshots.
 - **Conflict control**: automatically rename, skip, or replace same-name files.
 - **Rules you can read**: rules can be imported and exported as JSON.
-- **GUI + CLI**: a simple Mac app for everyday use and a `foldersorter` CLI for automation.
+- **GUI + CLI**: a simple Mac app for everyday use and a pure Python `foldersorter` CLI for automation.
 - **Bilingual interface**: follow system language, English, or Traditional Chinese.
 - **Local-first privacy**: no uploads, no analytics, no network feature.
 
@@ -51,26 +51,15 @@ The generated app bundle is written to:
 dist/FolderSorter.app
 ```
 
-## Install The CLI With pip
-
-Before the package is published to PyPI, install directly from GitHub:
-
-```bash
-python3 -m pip install "git+https://github.com/kodlbegiko/FolderSorter.git"
-foldersorter --help
-```
-
-After the package is published to PyPI:
+## Install The Cross-Platform CLI With pip
 
 ```bash
 python3 -m pip install foldersorter
 foldersorter --help
 ```
 
-The pip package currently installs the CLI wrapper. It requires the Swift
-toolchain because the first `foldersorter` run builds the Swift CLI locally.
-PyPI publishing is prepared through the `Publish PyPI` GitHub Actions workflow
-and documented in `PYPI.md`.
+The pip package is implemented in Python and works on macOS, Windows, and Linux.
+It does not require Swift, Xcode, or Xcode Command Line Tools.
 
 ## Use The App
 

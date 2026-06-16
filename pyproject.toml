@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "foldersorter"
-version = "0.1.0"
-description = "Preview-first macOS file organizer with undo, SwiftUI GUI, and CLI"
+version = "0.2.0"
+description = "Preview-first cross-platform file organizer with undo and a Python CLI"
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
@@ -27,7 +27,7 @@ classifiers = [
   "Environment :: MacOS X",
   "Intended Audience :: End Users/Desktop",
   "License :: OSI Approved :: MIT License",
-  "Operating System :: MacOS",
+  "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
   "Topic :: Desktop Environment :: File Managers",
@@ -50,16 +50,10 @@ include = [
   "/README.md",
   "/README.en.md",
   "/README.zh-TW.md",
-  "/Sources",
-  "/Tests",
-  "/python/foldersorter"
+  "/PYPI.md",
+  "/python/foldersorter",
+  "/python_tests"
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["python/foldersorter"]
-
-[tool.hatch.build.targets.wheel.force-include]
-"Package.swift" = "foldersorter/swift_project/Package.swift"
-"Sources" = "foldersorter/swift_project/Sources"
-"Tests" = "foldersorter/swift_project/Tests"
-"Examples" = "foldersorter/swift_project/Examples"
