@@ -39,6 +39,14 @@ undo the last cleanup.
 - macOS 14 or newer
 - Xcode command line tools or Xcode with SwiftPM
 
+## Download The Mac App
+
+Download `FolderSorter-0.2.0.dmg` from the
+[latest GitHub release](https://github.com/kodlbegiko/FolderSorter/releases/latest).
+
+The current macOS app build is unsigned. On first launch, macOS may require
+right-clicking the app and choosing `Open`.
+
 ## Run The App
 
 ```bash
@@ -155,7 +163,7 @@ transparent organizer for the broadest Mac audience:
 
 ## Next Priorities
 
-- **Downloadable release**: ship a `.zip` first, then `.dmg`, so users do not need to run `swift build`.
+- **Signed release**: the GitHub release now includes `.zip` and `.dmg`; the next packaging step is signing and notarization.
 - **Stronger GUI rules**: add visual conditions for file size, dates, screenshots, duplicates, and broad file types.
 - **Before / after comparison**: show the messy source folder beside the planned organized output.
 

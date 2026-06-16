@@ -7,14 +7,14 @@ users first, not by becoming another expert-only automation tool.
 
 ### Downloadable Release
 
-The biggest adoption blocker is that there is no downloadable `.dmg` or `.zip`
-release yet. Most users will not run `swift build`, so the next public milestone
-should provide a simple downloadable app bundle through GitHub Releases.
+FolderSorter now ships downloadable `.zip` and `.dmg` assets through GitHub
+Releases, so non-developers no longer need to run `swift build` to try the Mac
+app.
 
 Deliverables:
 
-- Build a reproducible release script for `FolderSorter.app`.
-- Publish a zipped app build first, then add `.dmg` packaging.
+- Build a reproducible release script for `FolderSorter.app` and `.dmg`.
+- Publish zipped app and `.dmg` builds in GitHub Releases.
 - Document first-run macOS security expectations for unsigned builds.
 - Move toward signing and notarization once the release flow is stable.
 

@@ -7,14 +7,13 @@
 
 ### 可下載版本
 
-目前最大的採用門檻是沒有 `.dmg` 或 `.zip` 下載版。多數一般使用者不會執行
-`swift build`，所以下一個公開里程碑應該先透過 GitHub Releases 提供可直接
-下載的 app bundle。
+FolderSorter 現在已透過 GitHub Releases 提供 `.zip` 與 `.dmg` 下載版，
+一般使用者不需要執行 `swift build` 也可以試用 Mac app。
 
 交付項目：
 
-- 建立可重現的 `FolderSorter.app` release script。
-- 先發布 zipped app build，再補 `.dmg` packaging。
+- 建立可重現的 `FolderSorter.app` 與 `.dmg` release script。
+- 在 GitHub Releases 發布 zipped app 與 `.dmg` build。
 - 文件化未簽章 build 在 macOS 第一次開啟時會遇到的安全提示。
 - release 流程穩定後，再往簽章與 notarization 前進。
 

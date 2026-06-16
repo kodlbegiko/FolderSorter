@@ -10,6 +10,7 @@
 
 ### Added
 
+- Unsigned macOS `.dmg` release packaging for direct installation.
 - Python core tests for preview, copy, move, undo, and conflict renaming.
 
 ## v0.1.0
