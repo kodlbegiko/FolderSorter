@@ -20,6 +20,7 @@ undo the last cleanup.
 [Launch and discoverability plan](DISCOVERABILITY.md) |
 [Roadmap](ROADMAP.md) |
 [pip distribution](PYPI.md) |
+[Changelog](CHANGELOG.md) |
 [GitHub social preview asset](Media/foldersorter-social-preview.jpg)
 
 ## Highlights

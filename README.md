@@ -17,6 +17,7 @@ FolderSorter 是一個安全、開源、預覽優先的 macOS 檔案整理器。
 [Launch and discoverability plan](DISCOVERABILITY.md) |
 [Roadmap](ROADMAP.md) |
 [pip distribution](PYPI.md) |
+[Changelog](CHANGELOG.md) |
 [GitHub social preview asset](Media/foldersorter-social-preview.jpg)
 
 ## English
