@@ -1,5 +1,7 @@
 # FolderSorter
 
+[English](README.md) | [繁體中文](README.zh-TW.md)
+
 FolderSorter is a safe, open-source macOS file organizer.
 
 It is built for the common Mac problem: a messy Downloads folder, Desktop,
@@ -17,6 +19,7 @@ undo the last cleanup.
 - **Conflict control**: automatically rename, skip, or replace same-name files.
 - **Rules you can read**: rules can be imported and exported as JSON.
 - **GUI + CLI**: a simple Mac app for everyday use and a `foldersorter` CLI for automation.
+- **Bilingual interface**: follow system language, English, or Traditional Chinese.
 - **Local-first privacy**: no uploads, no analytics, no network feature.
 
 ## Requirements
@@ -47,6 +50,8 @@ dist/FolderSorter.app
 
 The default mode is copy, so original files stay in place. Move mode is available
 when you want a real cleanup.
+
+The app includes a language picker with `System`, `English`, and `繁體中文`.
 
 ## CLI
 

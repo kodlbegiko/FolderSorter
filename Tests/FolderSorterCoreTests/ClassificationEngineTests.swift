@@ -189,6 +189,50 @@ final class ClassificationEngineTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: destination.path))
     }
 
+    func testCoreMessagesCanBeEnglish() throws {
+        let root = try makeTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let input = root.appendingPathComponent("a", isDirectory: true)
+        let output = root.appendingPathComponent("c", isDirectory: true)
+        try FileManager.default.createDirectory(at: input, withIntermediateDirectories: true)
+        try "note".write(to: input.appendingPathComponent("note.txt"), atomically: true, encoding: .utf8)
+
+        let plan = ClassificationEngine.makePlan(job: ClassificationJob(
+            inputURLs: [input],
+            outputRoot: output,
+            rules: [ClassificationRule(extensionsText: "mp4", folderName: "Videos")],
+            operationMode: .copy,
+            includesSubfolders: true,
+            messageLanguage: .english
+        ))
+
+        XCTAssertEqual(plan.operations.count, 0)
+        XCTAssertTrue(plan.messages.contains { $0.text == "No files matched the current rules." })
+    }
+
+    func testCoreMessagesCanBeTraditionalChinese() throws {
+        let root = try makeTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let input = root.appendingPathComponent("a", isDirectory: true)
+        let output = root.appendingPathComponent("c", isDirectory: true)
+        try FileManager.default.createDirectory(at: input, withIntermediateDirectories: true)
+        try "note".write(to: input.appendingPathComponent("note.txt"), atomically: true, encoding: .utf8)
+
+        let plan = ClassificationEngine.makePlan(job: ClassificationJob(
+            inputURLs: [input],
+            outputRoot: output,
+            rules: [ClassificationRule(extensionsText: "mp4", folderName: "Videos")],
+            operationMode: .copy,
+            includesSubfolders: true,
+            messageLanguage: .traditionalChinese
+        ))
+
+        XCTAssertEqual(plan.operations.count, 0)
+        XCTAssertTrue(plan.messages.contains { $0.text == "沒有找到符合規則的檔案。" })
+    }
+
     private func makeTemporaryDirectory() throws -> URL {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("FolderSorterTests-\(UUID().uuidString)", isDirectory: true)

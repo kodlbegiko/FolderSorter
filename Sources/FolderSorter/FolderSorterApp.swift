@@ -55,6 +55,115 @@ final class OpenedURLRouter: ObservableObject {
     }
 }
 
+enum AppLanguagePreference: String, CaseIterable, Identifiable {
+    case system
+    case english
+    case traditionalChinese
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .system:
+            return "System / 跟隨系統"
+        case .english:
+            return "English"
+        case .traditionalChinese:
+            return "繁體中文"
+        }
+    }
+
+    var resolvedMessageLanguage: MessageLanguage {
+        switch self {
+        case .english:
+            return .english
+        case .traditionalChinese:
+            return .traditionalChinese
+        case .system:
+            let preferred = Locale.preferredLanguages.first?.lowercased() ?? ""
+            if preferred.contains("zh-hant") || preferred.contains("zh-tw") || preferred.contains("zh-hk") || preferred.contains("zh-mo") {
+                return .traditionalChinese
+            }
+            return .english
+        }
+    }
+}
+
+enum AppCopy {
+    static func text(_ key: String, language: MessageLanguage) -> String {
+        let value = table[key] ?? (key, key)
+        switch language {
+        case .english:
+            return value.en
+        case .traditionalChinese:
+            return value.zh
+        }
+    }
+
+    private static let table: [String: (en: String, zh: String)] = [
+        "app.title": ("FolderSorter", "資料夾分類器"),
+        "rules": ("Rules", "規則"),
+        "language": ("Language", "語言"),
+        "quickPreview": ("Quick Preview", "快速預覽"),
+        "outputFolder": ("Output Folder", "輸出資料夾"),
+        "choose": ("Choose", "選擇"),
+        "open": ("Open", "打開"),
+        "mode": ("Mode", "處理方式"),
+        "conflict": ("Conflict", "同名衝突"),
+        "includeSubfolders": ("Include subfolders", "包含子資料夾"),
+        "sortingRules": ("Sorting Rules", "分類規則"),
+        "extensions": ("Extensions", "副檔名"),
+        "nameContains": ("Name Contains", "名稱包含"),
+        "destinationFolder": ("Destination Folder", "目的資料夾"),
+        "importRules": ("Import rules", "匯入規則"),
+        "exportRules": ("Export rules", "匯出規則"),
+        "addRule": ("Add rule", "新增規則"),
+        "deleteRule": ("Delete rule", "刪除規則"),
+        "processing": ("Processing", "處理中"),
+        "dropToPreview": ("Drop folders here to preview", "拖放資料夾到這裡預覽"),
+        "chooseFolder": ("Choose Folder", "選擇資料夾"),
+        "startSorting": ("Start Sorting", "開始整理"),
+        "undo": ("Undo", "復原"),
+        "showOutput": ("Show Output", "查看輸出"),
+        "preview": ("Preview", "整理預覽"),
+        "itemsPlanned": ("items planned", "個待整理"),
+        "clearPreview": ("Clear preview", "清除預覽"),
+        "noMatchingFiles": ("No files match the current rules.", "沒有符合目前規則的檔案。"),
+        "dropHint": ("Drop folders to list every file that will be moved or copied.", "拖入資料夾後會先列出所有將要移動或複製的檔案。"),
+        "moreItemsHidden": ("more items are not shown.", "個項目未顯示。"),
+        "scanned": ("Scanned", "掃描"),
+        "matched": ("Matched", "符合"),
+        "planned": ("Planned", "待整理"),
+        "issues": ("Issues", "問題"),
+        "copiedMoved": ("Sorted", "整理"),
+        "skipped": ("Skipped", "略過"),
+        "failed": ("Failed", "失敗"),
+        "defaults": ("Defaults", "預設"),
+        "output": ("Output", "輸出"),
+        "log": ("Log", "紀錄"),
+        "waiting": ("Waiting for folders.", "等待資料夾。"),
+        "noItems": ("No items to process.", "沒有可處理的項目。"),
+        "busy": ("A task is already running. Wait for it to finish.", "正在處理中，請等目前任務完成。"),
+        "previewing": ("Building a safe preview. No files will be moved.", "正在建立安全預覽，不會移動任何檔案。"),
+        "noPreview": ("There is no preview to apply.", "沒有可執行的預覽。"),
+        "undoing": ("Undoing the latest cleanup.", "正在復原上一筆整理。"),
+        "clearedPreview": ("Preview cleared.", "已清除預覽。"),
+        "exportRulesTitle": ("Export Sorting Rules", "匯出分類規則"),
+        "importRulesTitle": ("Import Sorting Rules", "匯入分類規則"),
+        "rulesExported": ("Exported rules:", "已匯出規則："),
+        "rulesExportFailed": ("Could not export rules:", "匯出規則失敗："),
+        "rulesImportNoUsable": ("Import failed: no usable rules in the file.", "匯入失敗：檔案沒有可用規則。"),
+        "rulesImported": ("Imported rules:", "已匯入規則："),
+        "rulesImportFailed": ("Could not import rules:", "匯入規則失敗："),
+        "previewComplete": ("Preview complete", "預覽完成"),
+        "complete": ("Complete", "完成"),
+        "undoComplete": ("Undo complete", "復原完成"),
+        "savingUndoFailed": ("Cleanup finished, but the undo record could not be saved:", "整理完成，但復原紀錄儲存失敗："),
+        "movingBack": ("restored", "移回"),
+        "removedCopies": ("removed copies", "移除複製檔")
+    ]
+}
+
 @MainActor
 final class AppState: ObservableObject {
     @Published var rules: [ClassificationRule] {
@@ -77,6 +186,10 @@ final class AppState: ObservableObject {
         didSet { defaults.set(conflictStrategy.rawValue, forKey: Self.conflictStrategyKey) }
     }
 
+    @Published var languagePreference: AppLanguagePreference {
+        didSet { defaults.set(languagePreference.rawValue, forKey: Self.languagePreferenceKey) }
+    }
+
     @Published private(set) var isProcessing = false
     @Published private(set) var lastReport: ClassificationReport?
     @Published private(set) var pendingPlan: ClassificationPlan?
@@ -90,6 +203,7 @@ final class AppState: ObservableObject {
     private static let operationModeKey = "folder-sorter.operation-mode"
     private static let includesSubfoldersKey = "folder-sorter.includes-subfolders"
     private static let conflictStrategyKey = "folder-sorter.conflict-strategy"
+    private static let languagePreferenceKey = "folder-sorter.language-preference"
     private let defaults = UserDefaults.standard
     private let transactionStore = TransactionStore()
 
@@ -99,15 +213,39 @@ final class AppState: ObservableObject {
         self.operationMode = Self.loadOperationMode(from: defaults)
         self.includesSubfolders = defaults.object(forKey: Self.includesSubfoldersKey) as? Bool ?? true
         self.conflictStrategy = Self.loadConflictStrategy(from: defaults)
+        self.languagePreference = Self.loadLanguagePreference(from: defaults)
         self.lastTransaction = transactionStore.latestTransaction()?.transaction
+        self.logMessages = [
+            .init(text: AppCopy.text("waiting", language: self.messageLanguage))
+        ]
     }
 
     var outputPath: String {
         outputFolder.path
     }
 
+    var messageLanguage: MessageLanguage {
+        languagePreference.resolvedMessageLanguage
+    }
+
+    func text(_ key: String) -> String {
+        AppCopy.text(key, language: messageLanguage)
+    }
+
+    func modeTitle(_ mode: OperationMode) -> String {
+        mode.title(language: messageLanguage)
+    }
+
+    func completedModeTitle(_ mode: OperationMode) -> String {
+        mode.completedTitle(language: messageLanguage)
+    }
+
+    func conflictTitle(_ strategy: ConflictStrategy) -> String {
+        strategy.title(language: messageLanguage)
+    }
+
     func addRule() {
-        rules.append(ClassificationRule(extensionsText: "png", folderName: "圖片"))
+        rules.append(ClassificationRule(extensionsText: "png", folderName: "Images"))
     }
 
     func removeRule(id: UUID) {
@@ -117,7 +255,7 @@ final class AppState: ObservableObject {
 
     func chooseOutputFolder() {
         let panel = NSOpenPanel()
-        panel.title = "選擇輸出資料夾"
+        panel.title = text("outputFolder")
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.canCreateDirectories = true
@@ -130,7 +268,7 @@ final class AppState: ObservableObject {
 
     func chooseInputItems() {
         let panel = NSOpenPanel()
-        panel.title = "選擇要預覽整理的資料夾或檔案"
+        panel.title = text("chooseFolder")
         panel.canChooseFiles = true
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = true
@@ -159,7 +297,7 @@ final class AppState: ObservableObject {
 
     func clearPreview() {
         pendingPlan = nil
-        logMessages = [.init(text: "已清除預覽。")]
+        logMessages = [.init(text: text("clearedPreview"))]
     }
 
     func preview(_ urls: [URL]) {
@@ -171,12 +309,12 @@ final class AppState: ObservableObject {
         }
 
         guard !uniqueURLs.isEmpty else {
-            logMessages = [.init(text: "沒有可處理的項目。", isError: true)]
+            logMessages = [.init(text: text("noItems"), isError: true)]
             return
         }
 
         guard !isProcessing else {
-            logMessages.insert(.init(text: "正在處理中，請等目前任務完成。", isError: true), at: 0)
+            logMessages.insert(.init(text: text("busy"), isError: true), at: 0)
             return
         }
 
@@ -186,13 +324,14 @@ final class AppState: ObservableObject {
             rules: rules,
             operationMode: operationMode,
             includesSubfolders: includesSubfolders,
-            conflictStrategy: conflictStrategy
+            conflictStrategy: conflictStrategy,
+            messageLanguage: messageLanguage
         )
 
         isProcessing = true
         lastReport = nil
         pendingPlan = nil
-        logMessages = [.init(text: "正在建立安全預覽，不會移動任何檔案。")]
+        logMessages = [.init(text: text("previewing"))]
 
         Task {
             let plan = await Task.detached(priority: .userInitiated) {
@@ -204,17 +343,17 @@ final class AppState: ObservableObject {
 
     func applyPendingPlan() {
         guard let plan = pendingPlan else {
-            logMessages = [.init(text: "沒有可執行的預覽。", isError: true)]
+            logMessages = [.init(text: text("noPreview"), isError: true)]
             return
         }
 
         guard !isProcessing else {
-            logMessages.insert(.init(text: "正在處理中，請等目前任務完成。", isError: true), at: 0)
+            logMessages.insert(.init(text: text("busy"), isError: true), at: 0)
             return
         }
 
         isProcessing = true
-        logMessages = [.init(text: "開始整理 \(plan.operations.count) 個檔案。")]
+        logMessages = [.init(text: "\(text("startSorting")) \(plan.operations.count)")]
 
         Task {
             let report = await Task.detached(priority: .userInitiated) {
@@ -226,17 +365,18 @@ final class AppState: ObservableObject {
 
     func undoLatestCleanup() {
         guard !isProcessing else {
-            logMessages.insert(.init(text: "正在處理中，請等目前任務完成。", isError: true), at: 0)
+            logMessages.insert(.init(text: text("busy"), isError: true), at: 0)
             return
         }
 
         isProcessing = true
-        logMessages = [.init(text: "正在復原上一筆整理。")]
+        logMessages = [.init(text: text("undoing"))]
 
         let store = transactionStore
+        let language = messageLanguage
         Task {
             let undoReport = await Task.detached(priority: .userInitiated) {
-                store.undoLatest()
+                store.undoLatest(language: language)
             }.value
             finishUndo(undoReport)
         }
@@ -244,7 +384,7 @@ final class AppState: ObservableObject {
 
     func exportRules() {
         let panel = NSSavePanel()
-        panel.title = "匯出分類規則"
+        panel.title = text("exportRulesTitle")
         panel.nameFieldStringValue = "foldersorter-rules.json"
         panel.allowedContentTypes = [.json]
         panel.canCreateDirectories = true
@@ -255,15 +395,15 @@ final class AppState: ObservableObject {
             let encoder = JSONEncoder()
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             try encoder.encode(rules).write(to: url)
-            logMessages = [.init(text: "已匯出規則：\(url.lastPathComponent)")]
+            logMessages = [.init(text: "\(text("rulesExported")) \(url.lastPathComponent)")]
         } catch {
-            logMessages = [.init(text: "匯出規則失敗：\(error.localizedDescription)", isError: true)]
+            logMessages = [.init(text: "\(text("rulesExportFailed")) \(error.localizedDescription)", isError: true)]
         }
     }
 
     func importRules() {
         let panel = NSOpenPanel()
-        panel.title = "匯入分類規則"
+        panel.title = text("importRulesTitle")
         panel.allowedContentTypes = [.json]
         panel.canChooseFiles = true
         panel.canChooseDirectories = false
@@ -275,14 +415,14 @@ final class AppState: ObservableObject {
             let data = try Data(contentsOf: url)
             let decodedRules = try JSONDecoder().decode([ClassificationRule].self, from: data)
             guard !decodedRules.filter(\.isUsable).isEmpty else {
-                logMessages = [.init(text: "匯入失敗：檔案沒有可用規則。", isError: true)]
+                logMessages = [.init(text: text("rulesImportNoUsable"), isError: true)]
                 return
             }
             rules = decodedRules
             pendingPlan = nil
-            logMessages = [.init(text: "已匯入 \(decodedRules.count) 條規則。")]
+            logMessages = [.init(text: "\(text("rulesImported")) \(decodedRules.count)")]
         } catch {
-            logMessages = [.init(text: "匯入規則失敗：\(error.localizedDescription)", isError: true)]
+            logMessages = [.init(text: "\(text("rulesImportFailed")) \(error.localizedDescription)", isError: true)]
         }
     }
 
@@ -291,7 +431,7 @@ final class AppState: ObservableObject {
         isProcessing = false
 
         let summary = ClassificationMessage(
-            text: "預覽完成：掃描 \(plan.scannedFiles)，符合 \(plan.matchedFiles)，將整理 \(plan.operations.count)，略過 \(plan.skippedFiles)，問題 \(plan.failedFiles)。",
+            text: "\(text("previewComplete")): \(text("scanned")) \(plan.scannedFiles), \(text("matched")) \(plan.matchedFiles), \(text("planned")) \(plan.operations.count), \(text("skipped")) \(plan.skippedFiles), \(text("issues")) \(plan.failedFiles).",
             isError: plan.failedFiles > 0
         )
         logMessages = [summary] + Array(plan.messages.suffix(200))
@@ -312,13 +452,13 @@ final class AppState: ObservableObject {
                 _ = try transactionStore.save(transaction)
                 lastTransaction = transaction
             } catch {
-                persistenceMessage = .init(text: "整理完成，但復原紀錄儲存失敗：\(error.localizedDescription)", isError: true)
+                persistenceMessage = .init(text: "\(text("savingUndoFailed")) \(error.localizedDescription)", isError: true)
             }
         }
 
         let completedCount = report.copiedFiles + report.movedFiles
         let summary = ClassificationMessage(
-            text: "完成：掃描 \(report.scannedFiles)，符合 \(report.matchedFiles)，整理 \(completedCount)，略過 \(report.skippedFiles)，失敗 \(report.failedFiles)。",
+            text: "\(text("complete")): \(text("scanned")) \(report.scannedFiles), \(text("matched")) \(report.matchedFiles), \(text("copiedMoved")) \(completedCount), \(text("skipped")) \(report.skippedFiles), \(text("failed")) \(report.failedFiles).",
             isError: report.failedFiles > 0
         )
         logMessages = [summary] + [persistenceMessage].compactMap { $0 } + Array(report.messages.suffix(200))
@@ -331,7 +471,7 @@ final class AppState: ObservableObject {
         pendingPlan = nil
 
         let summary = ClassificationMessage(
-            text: "復原完成：移回 \(report.restoredFiles)，移除複製檔 \(report.removedFiles)，略過 \(report.skippedFiles)，失敗 \(report.failedFiles)。",
+            text: "\(text("undoComplete")): \(text("movingBack")) \(report.restoredFiles), \(text("removedCopies")) \(report.removedFiles), \(text("skipped")) \(report.skippedFiles), \(text("failed")) \(report.failedFiles).",
             isError: report.failedFiles > 0
         )
         logMessages = [summary] + Array(report.messages.suffix(200))
@@ -382,6 +522,16 @@ final class AppState: ObservableObject {
         }
         return strategy
     }
+
+    private static func loadLanguagePreference(from defaults: UserDefaults) -> AppLanguagePreference {
+        guard
+            let rawValue = defaults.string(forKey: languagePreferenceKey),
+            let preference = AppLanguagePreference(rawValue: rawValue)
+        else {
+            return .system
+        }
+        return preference
+    }
 }
 
 struct ContentView: View {
@@ -402,6 +552,12 @@ struct ContentView: View {
                 .background(Color(nsColor: .textBackgroundColor))
         }
         .frame(minWidth: 920, minHeight: 620)
+        .onAppear {
+            NSApp.mainWindow?.title = state.text("app.title")
+        }
+        .onChange(of: state.languagePreference) { _, _ in
+            NSApp.mainWindow?.title = state.text("app.title")
+        }
         .onReceive(openedURLRouter.$pendingURLs) { urls in
             guard !urls.isEmpty else { return }
             state.preview(urls)
@@ -415,17 +571,18 @@ struct ContentView: View {
                 AppAvatarView(size: 72)
 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("資料夾分類器")
+                    Text(state.text("app.title"))
                         .font(.title2.weight(.semibold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.85)
-                    Text("規則")
+                    Text(state.text("rules"))
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(.secondary)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
+            languageSection
             quickActionSection
             outputSection
             modeSection
@@ -436,9 +593,23 @@ struct ContentView: View {
         .padding(20)
     }
 
+    private var languageSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(state.text("language"))
+                .font(.headline)
+
+            Picker(state.text("language"), selection: $state.languagePreference) {
+                ForEach(AppLanguagePreference.allCases) { preference in
+                    Text(preference.title).tag(preference)
+                }
+            }
+            .pickerStyle(.menu)
+        }
+    }
+
     private var quickActionSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("快速預覽")
+            Text(state.text("quickPreview"))
                 .font(.headline)
 
             HStack(spacing: 8) {
@@ -461,7 +632,7 @@ struct ContentView: View {
 
     private var outputSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("輸出資料夾")
+            Text(state.text("outputFolder"))
                 .font(.headline)
 
             HStack(spacing: 8) {
@@ -480,13 +651,13 @@ struct ContentView: View {
                 Button {
                     state.chooseOutputFolder()
                 } label: {
-                    Label("選擇", systemImage: "folder.badge.plus")
+                    Label(state.text("choose"), systemImage: "folder.badge.plus")
                 }
 
                 Button {
                     state.revealOutputFolder()
                 } label: {
-                    Label("打開", systemImage: "arrow.up.forward.app")
+                    Label(state.text("open"), systemImage: "arrow.up.forward.app")
                 }
             }
         }
@@ -494,31 +665,31 @@ struct ContentView: View {
 
     private var modeSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("處理方式")
+            Text(state.text("mode"))
                 .font(.headline)
 
-            Picker("處理方式", selection: $state.operationMode) {
+            Picker(state.text("mode"), selection: $state.operationMode) {
                 ForEach(OperationMode.allCases) { mode in
-                    Text(mode.title).tag(mode)
+                    Text(state.modeTitle(mode)).tag(mode)
                 }
             }
             .pickerStyle(.segmented)
 
-            Picker("同名衝突", selection: $state.conflictStrategy) {
+            Picker(state.text("conflict"), selection: $state.conflictStrategy) {
                 ForEach(ConflictStrategy.allCases) { strategy in
-                    Text(strategy.title).tag(strategy)
+                    Text(state.conflictTitle(strategy)).tag(strategy)
                 }
             }
             .pickerStyle(.segmented)
 
-            Toggle("包含子資料夾", isOn: $state.includesSubfolders)
+            Toggle(state.text("includeSubfolders"), isOn: $state.includesSubfolders)
         }
     }
 
     private var rulesSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("分類規則")
+                Text(state.text("sortingRules"))
                     .font(.headline)
                 Spacer()
                 Button {
@@ -526,29 +697,29 @@ struct ContentView: View {
                 } label: {
                     Image(systemName: "square.and.arrow.down")
                 }
-                .help("匯入規則")
+                .help(state.text("importRules"))
 
                 Button {
                     state.exportRules()
                 } label: {
                     Image(systemName: "square.and.arrow.up")
                 }
-                .help("匯出規則")
+                .help(state.text("exportRules"))
 
                 Button {
                     state.addRule()
                 } label: {
                     Image(systemName: "plus")
                 }
-                .help("新增規則")
+                .help(state.text("addRule"))
             }
 
             HStack {
-                Text("副檔名")
+                Text(state.text("extensions"))
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Text("名稱包含")
+                Text(state.text("nameContains"))
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Text("目的資料夾")
+                Text(state.text("destinationFolder"))
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Spacer()
                     .frame(width: 28)
@@ -559,7 +730,7 @@ struct ContentView: View {
             ScrollView {
                 LazyVStack(spacing: 8) {
                     ForEach($state.rules) { $rule in
-                        RuleRow(rule: $rule) {
+                        RuleRow(rule: $rule, deleteHelp: state.text("deleteRule")) {
                             state.removeRule(id: rule.id)
                         }
                     }
@@ -596,35 +767,35 @@ struct ContentView: View {
                     .font(.system(size: 46, weight: .medium))
                     .foregroundStyle(isDropTargeted ? Color.accentColor : Color.secondary)
 
-                Text(state.isProcessing ? "處理中" : "拖放資料夾到這裡預覽")
+                Text(state.isProcessing ? state.text("processing") : state.text("dropToPreview"))
                     .font(.title3.weight(.semibold))
 
                 HStack(spacing: 10) {
                     Button {
                         state.chooseInputItems()
                     } label: {
-                        Label("選擇資料夾", systemImage: "folder.badge.plus")
+                        Label(state.text("chooseFolder"), systemImage: "folder.badge.plus")
                     }
                     .disabled(state.isProcessing)
 
                     Button {
                         state.applyPendingPlan()
                     } label: {
-                        Label("開始整理", systemImage: "play.fill")
+                        Label(state.text("startSorting"), systemImage: "play.fill")
                     }
                     .disabled(state.isProcessing || state.pendingPlan?.operations.isEmpty != false)
 
                     Button {
                         state.undoLatestCleanup()
                     } label: {
-                        Label("復原", systemImage: "arrow.uturn.backward")
+                        Label(state.text("undo"), systemImage: "arrow.uturn.backward")
                     }
                     .disabled(state.isProcessing)
 
                     Button {
                         state.revealOutputFolder()
                     } label: {
-                        Label("查看輸出", systemImage: "magnifyingglass")
+                        Label(state.text("showOutput"), systemImage: "magnifyingglass")
                     }
                 }
 
@@ -646,11 +817,11 @@ struct ContentView: View {
     private var previewPanel: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("整理預覽")
+                Text(state.text("preview"))
                     .font(.headline)
                 Spacer()
                 if let plan = state.pendingPlan {
-                    Text("\(plan.operations.count) 個待整理")
+                    Text("\(plan.operations.count) \(state.text("itemsPlanned"))")
                         .font(.callout.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
@@ -659,13 +830,13 @@ struct ContentView: View {
                 } label: {
                     Image(systemName: "xmark.circle")
                 }
-                .help("清除預覽")
+                .help(state.text("clearPreview"))
                 .disabled(state.pendingPlan == nil)
             }
 
             if let plan = state.pendingPlan {
                 if plan.operations.isEmpty {
-                    Text("沒有符合目前規則的檔案。")
+                    Text(state.text("noMatchingFiles"))
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -679,7 +850,7 @@ struct ContentView: View {
                             }
 
                             if plan.operations.count > 80 {
-                                Text("另有 \(plan.operations.count - 80) 個項目未顯示。")
+                                Text("\(plan.operations.count - 80) \(state.text("moreItemsHidden"))")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -692,7 +863,7 @@ struct ContentView: View {
                     .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
                 }
             } else {
-                Text("拖入資料夾後會先列出所有將要移動或複製的檔案。")
+                Text(state.text("dropHint"))
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -705,28 +876,28 @@ struct ContentView: View {
     private var summaryStrip: some View {
         HStack(spacing: 12) {
             if let plan = state.pendingPlan {
-                MetricTile(title: "掃描", value: plan.scannedFiles, systemImage: "doc.text.magnifyingglass")
-                MetricTile(title: "符合", value: plan.matchedFiles, systemImage: "checkmark.circle")
-                MetricTile(title: "待整理", value: plan.operations.count, systemImage: "list.bullet.rectangle")
-                MetricTile(title: "衝突", textValue: plan.conflictStrategy.title, systemImage: "exclamationmark.arrow.triangle.2.circlepath")
-                MetricTile(title: "問題", value: plan.failedFiles, systemImage: "exclamationmark.triangle", isError: plan.failedFiles > 0)
+                MetricTile(title: state.text("scanned"), value: plan.scannedFiles, systemImage: "doc.text.magnifyingglass")
+                MetricTile(title: state.text("matched"), value: plan.matchedFiles, systemImage: "checkmark.circle")
+                MetricTile(title: state.text("planned"), value: plan.operations.count, systemImage: "list.bullet.rectangle")
+                MetricTile(title: state.text("conflict"), textValue: state.conflictTitle(plan.conflictStrategy), systemImage: "exclamationmark.arrow.triangle.2.circlepath")
+                MetricTile(title: state.text("issues"), value: plan.failedFiles, systemImage: "exclamationmark.triangle", isError: plan.failedFiles > 0)
             } else if let report = state.lastReport {
-                MetricTile(title: "掃描", value: report.scannedFiles, systemImage: "doc.text.magnifyingglass")
-                MetricTile(title: "符合", value: report.matchedFiles, systemImage: "checkmark.circle")
-                MetricTile(title: state.operationMode.completedTitle, value: report.copiedFiles + report.movedFiles, systemImage: "folder.fill.badge.gearshape")
-                MetricTile(title: "略過", value: report.skippedFiles, systemImage: "forward")
-                MetricTile(title: "失敗", value: report.failedFiles, systemImage: "exclamationmark.triangle", isError: report.failedFiles > 0)
+                MetricTile(title: state.text("scanned"), value: report.scannedFiles, systemImage: "doc.text.magnifyingglass")
+                MetricTile(title: state.text("matched"), value: report.matchedFiles, systemImage: "checkmark.circle")
+                MetricTile(title: state.completedModeTitle(state.operationMode), value: report.copiedFiles + report.movedFiles, systemImage: "folder.fill.badge.gearshape")
+                MetricTile(title: state.text("skipped"), value: report.skippedFiles, systemImage: "forward")
+                MetricTile(title: state.text("failed"), value: report.failedFiles, systemImage: "exclamationmark.triangle", isError: report.failedFiles > 0)
             } else {
-                MetricTile(title: "預設", value: state.rules.count, systemImage: "slider.horizontal.3")
-                MetricTile(title: "模式", textValue: state.operationMode.title, systemImage: "arrow.left.arrow.right")
-                MetricTile(title: "輸出", textValue: "C", systemImage: "folder")
+                MetricTile(title: state.text("defaults"), value: state.rules.count, systemImage: "slider.horizontal.3")
+                MetricTile(title: state.text("mode"), textValue: state.modeTitle(state.operationMode), systemImage: "arrow.left.arrow.right")
+                MetricTile(title: state.text("output"), textValue: "C", systemImage: "folder")
             }
         }
     }
 
     private var logPanel: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("紀錄")
+            Text(state.text("log"))
                 .font(.headline)
 
             ScrollView {
@@ -811,6 +982,7 @@ struct AppAvatarView: View {
 
 struct RuleRow: View {
     @Binding var rule: ClassificationRule
+    var deleteHelp: String
     var onDelete: () -> Void
 
     var body: some View {
@@ -830,7 +1002,7 @@ struct RuleRow: View {
                 Image(systemName: "minus.circle")
             }
             .buttonStyle(.borderless)
-            .help("刪除規則")
+            .help(deleteHelp)
         }
     }
 }

@@ -87,6 +87,32 @@ public enum OperationMode: String, CaseIterable, Codable, Identifiable, Sendable
             return "已移動"
         }
     }
+
+    public func title(language: MessageLanguage) -> String {
+        switch (self, language) {
+        case (.copy, .english):
+            return "Copy"
+        case (.move, .english):
+            return "Move"
+        case (.copy, .traditionalChinese):
+            return "複製"
+        case (.move, .traditionalChinese):
+            return "移動"
+        }
+    }
+
+    public func completedTitle(language: MessageLanguage) -> String {
+        switch (self, language) {
+        case (.copy, .english):
+            return "Copied"
+        case (.move, .english):
+            return "Moved"
+        case (.copy, .traditionalChinese):
+            return "已複製"
+        case (.move, .traditionalChinese):
+            return "已移動"
+        }
+    }
 }
 
 public enum ConflictStrategy: String, CaseIterable, Codable, Identifiable, Sendable {
@@ -106,6 +132,30 @@ public enum ConflictStrategy: String, CaseIterable, Codable, Identifiable, Senda
             return "取代同名"
         }
     }
+
+    public func title(language: MessageLanguage) -> String {
+        switch (self, language) {
+        case (.rename, .english):
+            return "Rename"
+        case (.skip, .english):
+            return "Skip"
+        case (.replace, .english):
+            return "Replace"
+        case (.rename, .traditionalChinese):
+            return "自動改名"
+        case (.skip, .traditionalChinese):
+            return "略過同名"
+        case (.replace, .traditionalChinese):
+            return "取代同名"
+        }
+    }
+}
+
+public enum MessageLanguage: String, CaseIterable, Codable, Identifiable, Sendable {
+    case english
+    case traditionalChinese
+
+    public var id: String { rawValue }
 }
 
 public struct ClassificationJob: Sendable {
@@ -115,6 +165,7 @@ public struct ClassificationJob: Sendable {
     public var operationMode: OperationMode
     public var includesSubfolders: Bool
     public var conflictStrategy: ConflictStrategy
+    public var messageLanguage: MessageLanguage
 
     public init(
         inputURLs: [URL],
@@ -122,7 +173,8 @@ public struct ClassificationJob: Sendable {
         rules: [ClassificationRule],
         operationMode: OperationMode,
         includesSubfolders: Bool,
-        conflictStrategy: ConflictStrategy = .rename
+        conflictStrategy: ConflictStrategy = .rename,
+        messageLanguage: MessageLanguage = .english
     ) {
         self.inputURLs = inputURLs
         self.outputRoot = outputRoot
@@ -130,6 +182,7 @@ public struct ClassificationJob: Sendable {
         self.operationMode = operationMode
         self.includesSubfolders = includesSubfolders
         self.conflictStrategy = conflictStrategy
+        self.messageLanguage = messageLanguage
     }
 }
 
@@ -183,6 +236,7 @@ public struct ClassificationPlan: Identifiable, Codable, Sendable {
     public var operationMode: OperationMode
     public var includesSubfolders: Bool
     public var conflictStrategy: ConflictStrategy
+    public var messageLanguage: MessageLanguage
     public var scannedFiles: Int
     public var matchedFiles: Int
     public var skippedFiles: Int
@@ -198,6 +252,7 @@ public struct ClassificationPlan: Identifiable, Codable, Sendable {
         operationMode: OperationMode,
         includesSubfolders: Bool,
         conflictStrategy: ConflictStrategy,
+        messageLanguage: MessageLanguage = .english,
         scannedFiles: Int = 0,
         matchedFiles: Int = 0,
         skippedFiles: Int = 0,
@@ -212,6 +267,7 @@ public struct ClassificationPlan: Identifiable, Codable, Sendable {
         self.operationMode = operationMode
         self.includesSubfolders = includesSubfolders
         self.conflictStrategy = conflictStrategy
+        self.messageLanguage = messageLanguage
         self.scannedFiles = scannedFiles
         self.matchedFiles = matchedFiles
         self.skippedFiles = skippedFiles
@@ -308,13 +364,14 @@ public enum ClassificationEngine {
             outputRootPath: job.outputRoot.standardizedFileURL.path,
             operationMode: job.operationMode,
             includesSubfolders: job.includesSubfolders,
-            conflictStrategy: job.conflictStrategy
+            conflictStrategy: job.conflictStrategy,
+            messageLanguage: job.messageLanguage
         )
         var reservedDestinationPaths = Set<String>()
 
         guard !rules.isEmpty else {
             plan.failedFiles += 1
-            plan.messages.append(.init(text: "沒有可用的分類規則。", isError: true))
+            plan.messages.append(.init(text: CoreText.noUsableRules(language: job.messageLanguage), isError: true))
             return plan
         }
 
@@ -330,7 +387,7 @@ public enum ClassificationEngine {
         }
 
         if plan.operations.isEmpty && plan.messages.isEmpty {
-            plan.messages.append(.init(text: "沒有找到符合規則的檔案。"))
+            plan.messages.append(.init(text: CoreText.noMatchingFiles(language: job.messageLanguage)))
         }
 
         return plan
@@ -361,7 +418,7 @@ public enum ClassificationEngine {
             try fileManager.createDirectory(at: plan.outputRoot, withIntermediateDirectories: true)
         } catch {
             report.failedFiles += plan.operations.count
-            report.messages.append(.init(text: "無法建立輸出資料夾：\(error.localizedDescription)", isError: true))
+            report.messages.append(.init(text: CoreText.cannotCreateOutput(error.localizedDescription, language: plan.messageLanguage), isError: true))
             return report
         }
 
@@ -386,10 +443,15 @@ public enum ClassificationEngine {
                 }
 
                 report.completedOperations.append(operation)
-                report.messages.append(.init(text: "\(plan.operationMode.completedTitle)：\(sourceURL.lastPathComponent) → \(operation.destinationFolderName)/\(destinationURL.lastPathComponent)"))
+                report.messages.append(.init(text: CoreText.completed(
+                    mode: plan.operationMode,
+                    fileName: sourceURL.lastPathComponent,
+                    destination: "\(operation.destinationFolderName)/\(destinationURL.lastPathComponent)",
+                    language: plan.messageLanguage
+                )))
             } catch {
                 report.failedFiles += 1
-                report.messages.append(.init(text: "處理失敗：\(operation.sourcePath)（\(error.localizedDescription)）", isError: true))
+                report.messages.append(.init(text: CoreText.operationFailed(operation.sourcePath, error.localizedDescription, language: plan.messageLanguage), isError: true))
             }
         }
 
@@ -419,14 +481,14 @@ public enum ClassificationEngine {
         var isDirectory: ObjCBool = false
         guard fileManager.fileExists(atPath: inputURL.path, isDirectory: &isDirectory) else {
             plan.failedFiles += 1
-            plan.messages.append(.init(text: "找不到：\(inputURL.path)", isError: true))
+            plan.messages.append(.init(text: CoreText.notFound(inputURL.path, language: job.messageLanguage), isError: true))
             return
         }
 
         if isDirectory.boolValue {
             guard !isEqualOrInside(inputURL, parent: job.outputRoot) else {
                 plan.skippedFiles += 1
-                plan.messages.append(.init(text: "已略過輸出資料夾本身：\(inputURL.lastPathComponent)"))
+                plan.messages.append(.init(text: CoreText.skippedOutputFolder(inputURL.lastPathComponent, language: job.messageLanguage)))
                 return
             }
 
@@ -454,7 +516,7 @@ public enum ClassificationEngine {
             options: [.skipsHiddenFiles, .skipsPackageDescendants]
         ) else {
             plan.failedFiles += 1
-            plan.messages.append(.init(text: "無法讀取資料夾：\(folderURL.path)", isError: true))
+            plan.messages.append(.init(text: CoreText.cannotReadFolder(folderURL.path, language: job.messageLanguage), isError: true))
             return
         }
 
@@ -497,7 +559,7 @@ public enum ClassificationEngine {
             }
         } catch {
             plan.failedFiles += 1
-            plan.messages.append(.init(text: "無法讀取資料夾：\(folderURL.path)", isError: true))
+            plan.messages.append(.init(text: CoreText.cannotReadFolder(folderURL.path, language: job.messageLanguage), isError: true))
         }
     }
 
@@ -533,14 +595,14 @@ public enum ClassificationEngine {
         case .skip:
             if destinationExists(proposedDestination, fileManager: fileManager, reservedDestinationPaths: reservedDestinationPaths) {
                 plan.skippedFiles += 1
-                plan.messages.append(.init(text: "同名檔已存在，已略過：\(sourceURL.lastPathComponent)"))
+                plan.messages.append(.init(text: CoreText.sameNameExists(sourceURL.lastPathComponent, language: job.messageLanguage)))
                 return
             }
             destinationURL = proposedDestination
         case .replace:
             if reservedDestinationPaths.contains(proposedDestination.standardizedFileURL.path) {
                 plan.skippedFiles += 1
-                plan.messages.append(.init(text: "同一批整理中已有同名目的地，已略過：\(sourceURL.lastPathComponent)"))
+                plan.messages.append(.init(text: CoreText.sameBatchDestination(sourceURL.lastPathComponent, language: job.messageLanguage)))
                 return
             }
             destinationURL = proposedDestination
@@ -548,7 +610,7 @@ public enum ClassificationEngine {
 
         guard sourceURL.standardizedFileURL.path != destinationURL.standardizedFileURL.path else {
             plan.skippedFiles += 1
-            plan.messages.append(.init(text: "來源與目的地相同，已略過：\(sourceURL.lastPathComponent)"))
+            plan.messages.append(.init(text: CoreText.sameSourceAndDestination(sourceURL.lastPathComponent, language: job.messageLanguage)))
             return
         }
 
@@ -653,24 +715,24 @@ public final class TransactionStore: @unchecked Sendable {
         return (transaction, latestURL)
     }
 
-    public func undoLatest(fileManager: FileManager = .default) -> UndoReport {
+    public func undoLatest(fileManager: FileManager = .default, language: MessageLanguage = .english) -> UndoReport {
         guard let latest = latestTransaction(fileManager: fileManager) else {
-            return UndoReport(messages: [.init(text: "沒有可復原的整理紀錄。")])
+            return UndoReport(messages: [.init(text: CoreText.noUndoRecord(language: language))])
         }
 
-        var report = undo(latest.transaction, fileManager: fileManager)
+        var report = undo(latest.transaction, fileManager: fileManager, language: language)
         if report.failedFiles == 0 {
             do {
                 try fileManager.removeItem(at: latest.url)
             } catch {
                 report.failedFiles += 1
-                report.messages.append(.init(text: "復原完成，但無法移除紀錄：\(error.localizedDescription)", isError: true))
+                report.messages.append(.init(text: CoreText.undoRecordRemovalFailed(error.localizedDescription, language: language), isError: true))
             }
         }
         return report
     }
 
-    public func undo(_ transaction: SortTransaction, fileManager: FileManager = .default) -> UndoReport {
+    public func undo(_ transaction: SortTransaction, fileManager: FileManager = .default, language: MessageLanguage = .english) -> UndoReport {
         var report = UndoReport()
 
         for operation in transaction.operations.reversed() {
@@ -681,29 +743,29 @@ public final class TransactionStore: @unchecked Sendable {
             case .copy:
                 guard fileManager.fileExists(atPath: destinationURL.path) else {
                     report.skippedFiles += 1
-                    report.messages.append(.init(text: "目的地不存在，已略過：\(destinationURL.lastPathComponent)"))
+                    report.messages.append(.init(text: CoreText.destinationMissing(destinationURL.lastPathComponent, language: language)))
                     continue
                 }
 
                 do {
                     try fileManager.removeItem(at: destinationURL)
                     report.removedFiles += 1
-                    report.messages.append(.init(text: "已移除複製檔：\(destinationURL.lastPathComponent)"))
+                    report.messages.append(.init(text: CoreText.removedCopy(destinationURL.lastPathComponent, language: language)))
                 } catch {
                     report.failedFiles += 1
-                    report.messages.append(.init(text: "無法移除：\(destinationURL.path)（\(error.localizedDescription)）", isError: true))
+                    report.messages.append(.init(text: CoreText.cannotRemove(destinationURL.path, error.localizedDescription, language: language), isError: true))
                 }
 
             case .move:
                 guard fileManager.fileExists(atPath: destinationURL.path) else {
                     report.skippedFiles += 1
-                    report.messages.append(.init(text: "目的地不存在，已略過：\(destinationURL.lastPathComponent)"))
+                    report.messages.append(.init(text: CoreText.destinationMissing(destinationURL.lastPathComponent, language: language)))
                     continue
                 }
 
                 guard !fileManager.fileExists(atPath: sourceURL.path) else {
                     report.skippedFiles += 1
-                    report.messages.append(.init(text: "原位置已有檔案，已略過：\(sourceURL.lastPathComponent)", isError: true))
+                    report.messages.append(.init(text: CoreText.sourceAlreadyExists(sourceURL.lastPathComponent, language: language), isError: true))
                     continue
                 }
 
@@ -711,18 +773,160 @@ public final class TransactionStore: @unchecked Sendable {
                     try fileManager.createDirectory(at: sourceURL.deletingLastPathComponent(), withIntermediateDirectories: true)
                     try fileManager.moveItem(at: destinationURL, to: sourceURL)
                     report.restoredFiles += 1
-                    report.messages.append(.init(text: "已移回：\(sourceURL.lastPathComponent)"))
+                    report.messages.append(.init(text: CoreText.restored(sourceURL.lastPathComponent, language: language)))
                 } catch {
                     report.failedFiles += 1
-                    report.messages.append(.init(text: "無法移回：\(destinationURL.path)（\(error.localizedDescription)）", isError: true))
+                    report.messages.append(.init(text: CoreText.cannotRestore(destinationURL.path, error.localizedDescription, language: language), isError: true))
                 }
             }
         }
 
         if report.messages.isEmpty {
-            report.messages.append(.init(text: "沒有需要復原的項目。"))
+            report.messages.append(.init(text: CoreText.nothingToUndo(language: language)))
         }
 
         return report
+    }
+}
+
+private enum CoreText {
+    static func noUsableRules(language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "No usable sorting rules."
+        case .traditionalChinese: return "沒有可用的分類規則。"
+        }
+    }
+
+    static func noMatchingFiles(language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "No files matched the current rules."
+        case .traditionalChinese: return "沒有找到符合規則的檔案。"
+        }
+    }
+
+    static func cannotCreateOutput(_ reason: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "Could not create the output folder: \(reason)"
+        case .traditionalChinese: return "無法建立輸出資料夾：\(reason)"
+        }
+    }
+
+    static func completed(mode: OperationMode, fileName: String, destination: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "\(mode.completedTitle(language: language)): \(fileName) -> \(destination)"
+        case .traditionalChinese: return "\(mode.completedTitle(language: language))：\(fileName) → \(destination)"
+        }
+    }
+
+    static func operationFailed(_ path: String, _ reason: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "Failed to process: \(path) (\(reason))"
+        case .traditionalChinese: return "處理失敗：\(path)（\(reason)）"
+        }
+    }
+
+    static func notFound(_ path: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "Not found: \(path)"
+        case .traditionalChinese: return "找不到：\(path)"
+        }
+    }
+
+    static func skippedOutputFolder(_ name: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "Skipped the output folder itself: \(name)"
+        case .traditionalChinese: return "已略過輸出資料夾本身：\(name)"
+        }
+    }
+
+    static func cannotReadFolder(_ path: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "Could not read folder: \(path)"
+        case .traditionalChinese: return "無法讀取資料夾：\(path)"
+        }
+    }
+
+    static func sameNameExists(_ name: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "Same-name file already exists, skipped: \(name)"
+        case .traditionalChinese: return "同名檔已存在，已略過：\(name)"
+        }
+    }
+
+    static func sameBatchDestination(_ name: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "This cleanup already has the same destination name, skipped: \(name)"
+        case .traditionalChinese: return "同一批整理中已有同名目的地，已略過：\(name)"
+        }
+    }
+
+    static func sameSourceAndDestination(_ name: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "Source and destination are the same, skipped: \(name)"
+        case .traditionalChinese: return "來源與目的地相同，已略過：\(name)"
+        }
+    }
+
+    static func noUndoRecord(language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "No cleanup record to undo."
+        case .traditionalChinese: return "沒有可復原的整理紀錄。"
+        }
+    }
+
+    static func undoRecordRemovalFailed(_ reason: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "Undo finished, but the record could not be removed: \(reason)"
+        case .traditionalChinese: return "復原完成，但無法移除紀錄：\(reason)"
+        }
+    }
+
+    static func destinationMissing(_ name: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "Destination is missing, skipped: \(name)"
+        case .traditionalChinese: return "目的地不存在，已略過：\(name)"
+        }
+    }
+
+    static func removedCopy(_ name: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "Removed copied file: \(name)"
+        case .traditionalChinese: return "已移除複製檔：\(name)"
+        }
+    }
+
+    static func cannotRemove(_ path: String, _ reason: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "Could not remove: \(path) (\(reason))"
+        case .traditionalChinese: return "無法移除：\(path)（\(reason)）"
+        }
+    }
+
+    static func sourceAlreadyExists(_ name: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "Original location already has a file, skipped: \(name)"
+        case .traditionalChinese: return "原位置已有檔案，已略過：\(name)"
+        }
+    }
+
+    static func restored(_ name: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "Restored: \(name)"
+        case .traditionalChinese: return "已移回：\(name)"
+        }
+    }
+
+    static func cannotRestore(_ path: String, _ reason: String, language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "Could not restore: \(path) (\(reason))"
+        case .traditionalChinese: return "無法移回：\(path)（\(reason)）"
+        }
+    }
+
+    static func nothingToUndo(language: MessageLanguage) -> String {
+        switch language {
+        case .english: return "There is nothing to undo."
+        case .traditionalChinese: return "沒有需要復原的項目。"
+        }
     }
 }
