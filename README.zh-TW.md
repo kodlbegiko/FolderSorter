@@ -1,6 +1,6 @@
 # FolderSorter
 
-[English](README.md) | [繁體中文](README.zh-TW.md)
+[雙語 README](README.md) | [English](README.en.md) | [繁體中文](README.zh-TW.md)
 
 FolderSorter 是一個安全、開源、預覽優先的 macOS 檔案整理器。
 
