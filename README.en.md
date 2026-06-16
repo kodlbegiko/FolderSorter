@@ -9,7 +9,16 @@ Screenshots pile, and random PDFs, ZIPs, DMGs, videos, and images. Unlike tools
 that immediately move files, FolderSorter previews every operation first and can
 undo the last cleanup.
 
-![FolderSorter app icon](Assets/AppAvatar.png)
+<p align="center">
+  <img src="Assets/AppAvatar.png" alt="FolderSorter app icon" width="96">
+</p>
+
+<p align="center">
+  <img src="Media/foldersorter-ui.png" alt="FolderSorter UI preview" width="900">
+</p>
+
+[Launch and discoverability plan](DISCOVERABILITY.md) |
+[GitHub social preview asset](Media/foldersorter-social-preview.jpg)
 
 ## Highlights
 
@@ -130,6 +139,17 @@ transparent organizer for the broadest Mac audience:
 - safer than one-shot cleaners,
 - more transparent than closed-source apps,
 - more approachable than CLI-only organizers.
+
+## Help This Project Grow
+
+FolderSorter is positioned as a macOS Downloads cleaner, screenshot organizer,
+and local-first file management utility for non-technical Mac users first, while
+still keeping CLI and JSON rules for power users.
+
+- Star or share the repository if the preview-first workflow solves a real cleanup problem.
+- Use the included UI screenshot when writing posts or issue discussions.
+- Use `Media/foldersorter-social-preview.jpg` as the GitHub social preview image.
+- See `DISCOVERABILITY.md` for the launch checklist and posting copy.
 
 ## License
 
