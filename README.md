@@ -1,17 +1,24 @@
-# FolderSorter
+# FolderSorter - Safe macOS File Organizer
+
+**Open-source, local-first macOS file organizer and Downloads cleaner with safe
+preview, undo, visual rules, a SwiftUI GUI, and a cross-platform Python CLI.**
+
+**開源、本機處理的 macOS 檔案整理器與 Downloads 清理工具，支援安全預覽、
+復原、視覺化規則、SwiftUI GUI 與跨平台 Python CLI。**
+
+[![Latest GitHub Release](https://img.shields.io/github/v/release/kodlbegiko/FolderSorter?label=macOS%20download)](https://github.com/kodlbegiko/FolderSorter/releases/latest)
+[![PyPI Version](https://img.shields.io/pypi/v/foldersorter?label=pip%20install)](https://pypi.org/project/foldersorter/)
+[![CI](https://github.com/kodlbegiko/FolderSorter/actions/workflows/ci.yml/badge.svg)](https://github.com/kodlbegiko/FolderSorter/actions/workflows/ci.yml)
+[![MIT License](https://img.shields.io/github/license/kodlbegiko/FolderSorter)](LICENSE)
 
 [English-only](README.en.md) | [繁體中文獨立版](README.zh-TW.md)
 
-FolderSorter is a safe, open-source macOS file organizer.
-
-FolderSorter 是一個安全、開源、預覽優先的 macOS 檔案整理器。
-
 <p align="center">
-  <img src="Assets/AppAvatar.png" alt="FolderSorter app icon" width="96">
+  <img src="Assets/AppAvatar.png" alt="FolderSorter macOS file organizer app icon" width="96">
 </p>
 
 <p align="center">
-  <img src="Media/foldersorter-ui.png" alt="FolderSorter UI preview" width="900">
+  <img src="Media/foldersorter-ui.png" alt="FolderSorter macOS Downloads folder organizer preview and rules interface" width="900">
 </p>
 
 [Launch and discoverability plan](DISCOVERABILITY.md) |
@@ -32,8 +39,9 @@ operation first and can undo the last cleanup.
 The goal is not to be the most powerful automation tool; it is to be the file
 organizer users feel safe pressing Apply on.
 
-### Highlights
+### macOS File Organizer Features
 
+- **Downloads and Desktop cleanup**: organize screenshots, PDFs, archives, installers, photos, videos, and code.
 - **Preview-first cleanup**: drag files or folders in, inspect the plan, then apply.
 - **One-click undo**: every applied cleanup writes a local transaction record.
 - **Common Mac defaults**: Images, Videos, Documents, Archives, Installers, Audio, Code, and Screenshots.
@@ -43,10 +51,17 @@ organizer users feel safe pressing Apply on.
 - **Bilingual interface**: follow system language, English, or Traditional Chinese.
 - **Local-first privacy**: no uploads, no analytics, no network feature.
 
+### Common macOS File Organization Use Cases
+
+- **Downloads folder organizer**: sort JPG, PNG, PDF, ZIP, RAR, 7z, DMG, PKG, MP4, and MOV files into clear folders.
+- **Desktop and screenshot organizer**: separate screenshots from other images without deleting originals.
+- **Photo, video, and document sorter**: route common media and office files with readable visual rules.
+- **Safe folder cleanup**: preview every copy or move, handle filename conflicts, and undo the latest cleanup.
+
 ### Requirements
 
-- macOS 14 or newer
-- Xcode command line tools or Xcode with SwiftPM
+- Downloaded Mac app: macOS 14 or newer
+- Building from source: Xcode Command Line Tools or Xcode with SwiftPM
 
 ### Download The Mac App
 
@@ -199,8 +214,9 @@ FolderSorter 解決的是最常見的檔案混亂問題：Downloads 爆滿、桌
 
 它要追求的不是最強自動化，而是讓一般使用者最敢按下整理。
 
-### 特色
+### macOS 檔案整理功能
 
+- **整理 Downloads 與桌面**：分類截圖、PDF、壓縮檔、安裝檔、照片、影片與程式碼。
 - **整理前先預覽**：拖入檔案或資料夾，先看完整計畫，再決定是否套用。
 - **一鍵復原**：每次套用整理都會留下本機 transaction 紀錄。
 - **一般 Mac 預設分類**：Screenshots、Images、Videos、Documents、Archives、Installers、Audio、Code。
@@ -210,10 +226,17 @@ FolderSorter 解決的是最常見的檔案混亂問題：Downloads 爆滿、桌
 - **雙語介面**：可跟隨系統語言，也可手動選 English 或繁體中文。
 - **本機優先隱私**：不會上傳檔案、檔名、規則，也沒有分析追蹤。
 
+### 常見 macOS 檔案整理用途
+
+- **Downloads 資料夾整理器**：把 JPG、PNG、PDF、ZIP、RAR、7z、DMG、PKG、MP4、MOV 分到清楚的資料夾。
+- **桌面與截圖整理器**：把截圖和其他圖片分開整理，不刪除原始檔案。
+- **照片、影片、文件分類器**：使用容易理解的視覺規則整理常見媒體與辦公文件。
+- **安全清理資料夾**：每次 copy 或 move 前先預覽，處理同名衝突，並可復原最近一次整理。
+
 ### 系統需求
 
-- macOS 14 或更新版本
-- Xcode Command Line Tools 或包含 SwiftPM 的 Xcode
+- 直接下載 Mac app：macOS 14 或更新版本
+- 從原始碼建置：Xcode Command Line Tools 或包含 SwiftPM 的 Xcode
 
 ### 下載 Mac App
 

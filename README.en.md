@@ -1,8 +1,14 @@
-# FolderSorter
+# FolderSorter - Safe macOS File Organizer
 
 [Bilingual README](README.md) | [English](README.en.md) | [繁體中文](README.zh-TW.md)
 
-FolderSorter is a safe, open-source macOS file organizer.
+**Open-source, local-first macOS file organizer and Downloads cleaner with safe
+preview, undo, visual rules, a SwiftUI GUI, and a cross-platform Python CLI.**
+
+[![Latest GitHub Release](https://img.shields.io/github/v/release/kodlbegiko/FolderSorter?label=macOS%20download)](https://github.com/kodlbegiko/FolderSorter/releases/latest)
+[![PyPI Version](https://img.shields.io/pypi/v/foldersorter?label=pip%20install)](https://pypi.org/project/foldersorter/)
+[![CI](https://github.com/kodlbegiko/FolderSorter/actions/workflows/ci.yml/badge.svg)](https://github.com/kodlbegiko/FolderSorter/actions/workflows/ci.yml)
+[![MIT License](https://img.shields.io/github/license/kodlbegiko/FolderSorter)](LICENSE)
 
 It is built for the common Mac problem: a messy Downloads folder, Desktop,
 Screenshots pile, and random PDFs, ZIPs, DMGs, videos, and images. Unlike tools
@@ -13,11 +19,11 @@ The goal is not to be the most powerful automation tool; it is to be the file
 organizer users feel safe pressing Apply on.
 
 <p align="center">
-  <img src="Assets/AppAvatar.png" alt="FolderSorter app icon" width="96">
+  <img src="Assets/AppAvatar.png" alt="FolderSorter macOS file organizer app icon" width="96">
 </p>
 
 <p align="center">
-  <img src="Media/foldersorter-ui.png" alt="FolderSorter UI preview" width="900">
+  <img src="Media/foldersorter-ui.png" alt="FolderSorter macOS Downloads folder organizer preview and rules interface" width="900">
 </p>
 
 [Launch and discoverability plan](DISCOVERABILITY.md) |
@@ -27,8 +33,9 @@ organizer users feel safe pressing Apply on.
 [Changelog](CHANGELOG.md) |
 [GitHub social preview asset](Media/foldersorter-social-preview.jpg)
 
-## Highlights
+## macOS File Organizer Features
 
+- **Downloads and Desktop cleanup**: organize screenshots, PDFs, archives, installers, photos, videos, and code.
 - **Preview-first cleanup**: drag files or folders in, inspect the plan, then apply.
 - **One-click undo**: every applied cleanup writes a local transaction record.
 - **Common Mac defaults**: Images, Videos, Documents, Archives, Installers, Audio, Code, and Screenshots.
@@ -38,10 +45,17 @@ organizer users feel safe pressing Apply on.
 - **Bilingual interface**: follow system language, English, or Traditional Chinese.
 - **Local-first privacy**: no uploads, no analytics, no network feature.
 
+## Common macOS File Organization Use Cases
+
+- **Downloads folder organizer**: sort JPG, PNG, PDF, ZIP, RAR, 7z, DMG, PKG, MP4, and MOV files into clear folders.
+- **Desktop and screenshot organizer**: separate screenshots from other images without deleting originals.
+- **Photo, video, and document sorter**: route common media and office files with readable visual rules.
+- **Safe folder cleanup**: preview every copy or move, handle filename conflicts, and undo the latest cleanup.
+
 ## Requirements
 
-- macOS 14 or newer
-- Xcode command line tools or Xcode with SwiftPM
+- Downloaded Mac app: macOS 14 or newer
+- Building from source: Xcode Command Line Tools or Xcode with SwiftPM
 
 ## Download The Mac App
 
