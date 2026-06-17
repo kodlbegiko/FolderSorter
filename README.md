@@ -15,6 +15,8 @@ FolderSorter 是一個安全、開源、預覽優先的 macOS 檔案整理器。
 </p>
 
 [Launch and discoverability plan](DISCOVERABILITY.md) |
+[Product strategy](PRODUCT_STRATEGY.md) |
+[產品策略](PRODUCT_STRATEGY.zh-TW.md) |
 [Roadmap](ROADMAP.md) |
 [pip distribution](PYPI.md) |
 [Changelog](CHANGELOG.md) |
@@ -26,6 +28,9 @@ FolderSorter is built for the common file clutter problem: a messy Downloads
 folder, Desktop, screenshots pile, and random PDFs, ZIPs, DMGs, videos, and
 images. Unlike tools that immediately move files, FolderSorter previews every
 operation first and can undo the last cleanup.
+
+The goal is not to be the most powerful automation tool; it is to be the file
+organizer users feel safe pressing Apply on.
 
 ### Highlights
 
@@ -157,19 +162,22 @@ swift script/generate_icon.swift
 
 ### Project Positioning
 
-FolderSorter is not trying to clone Hazel. The goal is a safer, simpler,
-transparent organizer for the broadest Mac audience:
+FolderSorter is not trying to clone Hazel or `organize`. The goal is a safer,
+simpler, transparent organizer for the broadest Mac audience:
 
 - easier than complex automation tools,
 - safer than one-shot cleaners,
 - more transparent than closed-source apps,
 - more approachable than CLI-only organizers.
 
+The product strategy is documented in [PRODUCT_STRATEGY.md](PRODUCT_STRATEGY.md).
+
 ### Next Priorities
 
+- **Trust-first preview**: show category summary, before / after paths, matching reasons, and risk notes before Apply.
+- **Undo and cleanup reports**: make the latest transaction inspectable, previewable, and easy to restore.
 - **Signed release**: the GitHub release now includes `.zip` and `.dmg`; the next packaging step is signing and notarization.
 - **Stronger GUI rules**: add visual conditions for file size, dates, screenshots, duplicates, and broad file types.
-- **Before / after comparison**: show the messy source folder beside the planned organized output.
 
 ### Help This Project Grow
 
@@ -188,6 +196,8 @@ FolderSorter 解決的是最常見的檔案混亂問題：Downloads 爆滿、桌
 截圖、PDF、ZIP、DMG、影片、圖片和各種臨時檔。FolderSorter 不會一開始
 就移動檔案，而是先產生整理預覽，讓你確認之後再套用；套用後也能復原
 上一筆整理。
+
+它要追求的不是最強自動化，而是讓一般使用者最敢按下整理。
 
 ### 特色
 
@@ -320,19 +330,22 @@ swift script/generate_icon.swift
 
 ### 專案定位
 
-FolderSorter 不是要複製 Hazel。它的目標是做出更安全、更簡單、更透明，
-適合最大多數 Mac 使用者的檔案整理器：
+FolderSorter 不是要複製 Hazel 或 `organize`。它的目標是做出更安全、
+更簡單、更透明，適合最大多數 Mac 使用者的檔案整理器：
 
 - 比複雜自動化工具更容易上手；
 - 比一次性清理工具更安全；
 - 比閉源工具更透明；
 - 比純 CLI 工具更適合一般使用者。
 
+產品策略整理在 [PRODUCT_STRATEGY.zh-TW.md](PRODUCT_STRATEGY.zh-TW.md)。
+
 ### 下一步優先事項
 
+- **信任優先預覽**：Apply 前顯示分類總覽、Before / After、命中原因與風險提示。
+- **Undo 與整理報告**：讓最近一次 transaction 可以檢視、預覽復原、清楚復原。
 - **簽章版本**：GitHub Release 已提供 `.zip` 與 `.dmg`；下一個 packaging 重點是 signing 與 notarization。
 - **強化 GUI 規則**：加入檔案大小、日期、截圖、重複檔、檔案大類型等視覺化條件。
-- **整理前後對照**：左邊顯示原始混亂資料夾，右邊顯示預計整理後的輸出結果。
 
 ### 幫助更多人看見
 

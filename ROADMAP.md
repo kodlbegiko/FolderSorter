@@ -1,50 +1,82 @@
 # Roadmap
 
+FolderSorter's roadmap is guided by the product strategy in
+[PRODUCT_STRATEGY.md](PRODUCT_STRATEGY.md): the goal is not to become the most
+powerful automation tool, but to become the file organizer everyday Mac users
+feel safe pressing Apply on.
+
 ## Highest Impact Next Work
 
-These items are prioritized because FolderSorter should win with everyday Mac
-users first, not by becoming another expert-only automation tool.
+These items are prioritized because FolderSorter should win with trust,
+understandability, and recoverability before it expands into deeper automation.
 
-### Downloadable Release
+### 1. Trust-First Preview And Apply Flow
 
-FolderSorter now ships downloadable `.zip` and `.dmg` assets through GitHub
-Releases, so non-developers no longer need to run `swift build` to try the Mac
-app.
+The preview should become the core product surface. Users should understand the
+cleanup before any file is touched.
 
 Deliverables:
 
-- Build a reproducible release script for `FolderSorter.app` and `.dmg`.
-- Publish zipped app and `.dmg` builds in GitHub Releases.
-- Document first-run macOS security expectations for unsigned builds.
-- Move toward signing and notarization once the release flow is stable.
+- Summary counts by category: images, documents, archives, installers, videos, and unclassified files.
+- Before / after view showing source path and planned destination path.
+- Matching reason for each file, such as extension, filename keyword, or broad file type.
+- Risk notes for move mode, large batches, conflicts, unknown types, and permission problems.
+- Final Apply confirmation that changes tone for copy, move, 100+ files, conflicts, and unclassified files.
 
-### Stronger Visual GUI Rules
+### 2. Undo And Cleanup Reports
 
-The rules system should become more capable without forcing users to write YAML
-or scripts. The GUI should stay visual and understandable.
+Undo should be reliable enough to be a main selling point, not just a safety
+button.
+
+Deliverables:
+
+- Completion report with success, skipped, failed, created-folder, and undoable counts.
+- Inspectable latest transaction record.
+- Undo preview before restoring files.
+- Human-readable failure messages when restore is not possible.
+- Stronger interrupted-Apply handling so transaction state is never ambiguous.
+
+### 3. Distribution Trust
+
+FolderSorter already has downloadable `.zip` and `.dmg` assets. The next release
+trust step is reducing macOS security friction.
+
+Deliverables:
+
+- Keep the reproducible `.app`, `.zip`, and `.dmg` release scripts working.
+- Document first-run expectations for unsigned builds.
+- Add Apple Developer signing.
+- Add notarization and stapling.
+- Re-test the install path on a clean Mac user profile.
+
+### 4. Stronger Visual GUI Rules
+
+Rules should become more capable without requiring users to write YAML, JSON, or
+scripts.
 
 Planned rule conditions:
 
 - File size
 - Created date
 - Modified date
+- Source folder
 - Screenshot detection
 - Duplicate detection
 - Broad file type groups such as images, videos, documents, archives, installers, audio, and code
 
-### Before / After Comparison
+### 5. First-Run Onboarding
 
-The preview should become more visual than a flat operation list. A before/after
-view can make the cleanup plan obvious before any file is touched.
+The first session should get a user from clutter to preview in under one minute.
 
 Planned experience:
 
-- Left side: original messy folder structure.
-- Right side: planned organized output structure.
-- Highlight moved, copied, skipped, duplicate, and conflict items.
-- Keep the final apply step explicit and undoable.
+- Start with three entry points: Downloads, Desktop, and custom folder.
+- Offer safety levels: safest copy-only mode, standard move-with-undo mode, and advanced custom mode.
+- Keep the first cleanup path free of rule syntax and technical settings.
 
-## V1
+## Maturity Levels
+
+### Level 1: Usable Tool
 
 - Safe preview before moving or copying files
 - One-click undo ledger
@@ -52,18 +84,40 @@ Planned experience:
 - JSON rule import/export
 - Conflict strategies: rename, skip, replace
 - Default rules for common Mac clutter
+- Local-first processing
 
-## V1.1
+### Level 2: Trusted Tool
 
-- Signed release builds
-- pip-installable CLI package
-- Better duplicate detection with hashes
-- More rule packs for students, creators, office workers, and developers
-- Optional scheduled scans with preview-first confirmation
+- Clear before / after preview
+- Apply report
+- Undo report and undo preview
+- Human-readable errors
+- Stable transaction history
+- Installable Mac app
+- Signed and notarized builds
+- GUI rule editing
+- Beginner mode
 
-## V2
+### Level 3: Useful Product
 
-- Metadata rules for media duration, image size, and EXIF dates
-- Optional OCR and local text extraction
-- Rule suggestions from recent manual cleanups
+- Rule templates for students, office workers, creators, and developers
+- Date and size rule conditions
+- Screenshot detection
+- Large-file cleanup
+- Multi-folder cleanup
+- Matching reasons visible per file
+- Saved settings
+- Complete English and Traditional Chinese UI
+- Polished native Mac app feel
+
+### Level 4: Growing Platform
+
+These are future directions, not the current focus:
+
+- Smart rule suggestions from folder contents
+- Duplicate detection with safe preview
+- Local PDF text classification
+- EXIF-based photo sorting
+- Shareable rule packs
 - Plugin API for advanced local processors
+- Controlled scheduled runs with preview-first confirmation

@@ -9,6 +9,9 @@ Screenshots pile, and random PDFs, ZIPs, DMGs, videos, and images. Unlike tools
 that immediately move files, FolderSorter previews every operation first and can
 undo the last cleanup.
 
+The goal is not to be the most powerful automation tool; it is to be the file
+organizer users feel safe pressing Apply on.
+
 <p align="center">
   <img src="Assets/AppAvatar.png" alt="FolderSorter app icon" width="96">
 </p>
@@ -18,6 +21,7 @@ undo the last cleanup.
 </p>
 
 [Launch and discoverability plan](DISCOVERABILITY.md) |
+[Product strategy](PRODUCT_STRATEGY.md) |
 [Roadmap](ROADMAP.md) |
 [pip distribution](PYPI.md) |
 [Changelog](CHANGELOG.md) |
@@ -153,19 +157,22 @@ swift script/generate_icon.swift
 
 ## Project Positioning
 
-FolderSorter is not trying to clone Hazel. The goal is a safer, simpler,
-transparent organizer for the broadest Mac audience:
+FolderSorter is not trying to clone Hazel or `organize`. The goal is a safer,
+simpler, transparent organizer for the broadest Mac audience:
 
 - easier than complex automation tools,
 - safer than one-shot cleaners,
 - more transparent than closed-source apps,
 - more approachable than CLI-only organizers.
 
+The product strategy is documented in [PRODUCT_STRATEGY.md](PRODUCT_STRATEGY.md).
+
 ## Next Priorities
 
+- **Trust-first preview**: show category summary, before / after paths, matching reasons, and risk notes before Apply.
+- **Undo and cleanup reports**: make the latest transaction inspectable, previewable, and easy to restore.
 - **Signed release**: the GitHub release now includes `.zip` and `.dmg`; the next packaging step is signing and notarization.
 - **Stronger GUI rules**: add visual conditions for file size, dates, screenshots, duplicates, and broad file types.
-- **Before / after comparison**: show the messy source folder beside the planned organized output.
 
 ## Help This Project Grow
 
